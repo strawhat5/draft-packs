@@ -2,7 +2,7 @@
 //Maintainer: Vyshakh P Rad
 
 pipeline {
-    agent { label "jenkins-gradle" }
+    agent { label "%%jxAgentLabel" }
 
     environment {
         JX_AGENT            = "%%jxAgent"

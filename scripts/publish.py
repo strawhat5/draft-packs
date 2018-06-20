@@ -8,31 +8,37 @@ class MyTemplate(Template):
 
 langs = {
     "go" : {
+        "jxAgentLabel" : "jenkins-go",
         "jxAgent" : "go",
         "aRoot" : "$_HOME",
         "bRoot" : "$_APP_ROOT/$GIT_PROVIDER/$APP_NAME",
     },
     "gradle" : {
+        "jxAgentLabel" : "jenkins-gradle",
         "jxAgent" : "gradle",
         "aRoot" : ".",
         "bRoot" : ".",
     },
     "javascript" : {
+        "jxAgentLabel" : "jenkins-nodejs",
         "jxAgent" : "nodejs",
         "aRoot" : ".",
         "bRoot" : ".",
     },
     "maven" : {
+        "jxAgentLabel" : "jenkins-maven",
         "jxAgent" : "maven",
         "aRoot" : ".",
         "bRoot" : ".",
     },
     "python" : {
+        "jxAgentLabel" : "jenkins-python",
         "jxAgent" : "python",
         "aRoot" : ".",
         "bRoot" : ".",
     },
     "scala" : {
+        "jxAgentLabel" : "jenkins-scala",
         "jxAgent" : "scala",
         "aRoot" : ".",
         "bRoot" : ".",
