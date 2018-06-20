@@ -29,4 +29,3 @@ profiles:
         setValueTemplates:
           image.repository: "{{.DOCKER_REGISTRY}}/REPLACE_ME_ORG/REPLACE_ME_APP_NAME"
           image.tag: "{{.TAG}}"
-        
