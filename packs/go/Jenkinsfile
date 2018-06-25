@@ -16,7 +16,7 @@ pipeline {
         CHARTMUSEUM_CREDS   = credentials('jenkins-x-chartmuseum')
 
         _HOME               = "/home/jenkins"
-        _APP_ROOT           = "$_HOME"
+        _APP_ROOT           = "$_HOME/go/src"
         _BUILD_ROOT         = "$_APP_ROOT/$GIT_PROVIDER/$APP_NAME"
         _CHARTS_PATH        = "$_BUILD_ROOT/charts/$APP_NAME"
 

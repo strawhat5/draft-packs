@@ -10,7 +10,7 @@ langs = {
     "go" : {
         "jxAgentLabel" : "jenkins-go",
         "jxAgent" : "go",
-        "aRoot" : "$_HOME",
+        "aRoot" : "$_HOME/go/src",
         "bRoot" : "$_APP_ROOT/$GIT_PROVIDER/$APP_NAME",
     },
     "gradle" : {
