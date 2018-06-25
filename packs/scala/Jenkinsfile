@@ -2,7 +2,7 @@
 //Maintainer: Vyshakh P Rad
 
 pipeline {
-    agent { label "jenkins-gradle" }
+    agent { label "jenkins-scala" }
 
     environment {
         JX_AGENT            = "scala"
