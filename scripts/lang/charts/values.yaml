@@ -1,6 +1,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 replicaCount: 1
+podLabels:
+  event-system: Local
 image:
   repository: draft
   tag: dev
@@ -31,6 +33,9 @@ readinessProbe:
   successThreshold: 1
   timeoutSeconds: 1
 terminationGracePeriodSeconds: 10
+
+ingerss:
+  enabled: false
 
 env:
   enabled: false

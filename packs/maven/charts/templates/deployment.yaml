@@ -10,6 +10,9 @@ spec:
   template:
     metadata:
       labels:
+{{- if .Values.podLabels }}
+{{ toYaml .Values.podLabels | indent 8 }}
+{{- end }}
         draft: {{ default "draft-app" .Values.draft }}
         app: {{ template "fullname" . }}
 {{- if .Values.podAnnotations }}
