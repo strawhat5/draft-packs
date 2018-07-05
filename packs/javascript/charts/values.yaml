@@ -2,7 +2,7 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 podLabels:
-  event-system: Local
+  livspace.com/event-system: Local
 image:
   repository: draft
   tag: dev
