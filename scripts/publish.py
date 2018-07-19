@@ -7,6 +7,12 @@ class MyTemplate(Template):
     idpattern = r'[a-z][_a-z0-9]*'
 
 langs = {
+    "php" : {
+        "jxAgentLabel" : "jenkins-python",
+        "jxAgent" : "python",
+        "aRoot" : ".",
+        "bRoot" : ".",
+    },
     "go" : {
         "jxAgentLabel" : "jenkins-go",
         "jxAgent" : "go",
