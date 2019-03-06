@@ -20,10 +20,29 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+      initContainers:
+{{- if .Values.init }}
+      - name: {{ .Chart.Name }}-init
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{ toYaml .Values.init | indent 8 -}}
+        {{- if .Values.env.enabled }}
+        env:
+{{ toYaml .Values.env.values | indent 8 -}}
+        {{- end }}
+        {{- if .Values.config.enabled }}
+        volumeMounts:
+        - mountPath: {{ .Values.config.mountPath }}
+          name: {{ template "fullname" . }}
+        {{- end }}
+{{- end }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- if .Values.run }}
+{{ toYaml .Values.run | indent 8 -}}
+{{- end }}
 {{- if .Values.env.enabled }}
         env:
 {{ toYaml .Values.env.values | indent 8 -}}
@@ -59,4 +78,4 @@ spec:
         configMap:
           name: {{ template "fullname" . }}
       {{- end }}
-
+      
