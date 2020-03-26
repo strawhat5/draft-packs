@@ -6,7 +6,7 @@
 {{- if $port.gateway.routes }}
 {{- range $key , $route := $port.gateway.routes }}
 ---
-apiVersion: getambassador.io/v2
+apiVersion: getambassador.io/v1
 kind:  Mapping
 metadata:
   name:  {{ template "fullname" $ }}-{{ $port.name }}-{{ $key }}-mapping
@@ -27,7 +27,7 @@ spec:
 {{- end }}
 {{- if $route.legacy }}
 ---
-apiVersion: getambassador.io/v2
+apiVersion: getambassador.io/v1
 kind:  Mapping
 metadata:
   name:  {{ template "fullname" $ }}-{{ $port.name }}-{{ $key }}-proxy-mapping
