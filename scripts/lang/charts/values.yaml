@@ -25,6 +25,7 @@ resources:
   requests:
     cpu: 200m
     memory: 256Mi
+probePort: 8080 #internal port,
 probePath: /actuator/health
 livenessProbe:
   initialDelaySeconds: 60
