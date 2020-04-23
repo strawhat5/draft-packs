@@ -8,7 +8,7 @@ image:
   tag: dev
   pullPolicy: IfNotPresent
 service:
-  name: $CI_PROJECT_NAME
+  name: REPLACE_ME_APP_NAME
   type: ClusterIP
   ports:
   - port: 80
