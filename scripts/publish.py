@@ -59,7 +59,7 @@ for i in langs:
     copyfile("./lang/charts/templates/configmap.yaml", "../packs/" + i + "/charts/templates/configmap.yaml")
     copyfile("./lang/charts/templates/service.yaml", "../packs/" + i + "/charts/templates/service.yaml")
     copyfile("./lang/charts/templates/deployment.yaml", "../packs/" + i + "/charts/templates/deployment.yaml")
-
+    copyfile("./lang/charts/templates/mapping.yaml", "../packs/" + i + "/charts/templates/mapping.yaml")
 
     filein = open( './lang/Jenkinsfile' )
     src = MyTemplate( filein.read() )
