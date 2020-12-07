@@ -1,12 +1,9 @@
+{{- if .Values.blueGreenDeploy.enabled -}}
 {{- if .Values.service }}
 apiVersion: v1
 kind: Service
 metadata:
-{{- if .Values.blueGreenDeploy.enabled }}
-  name: {{ template "bluename" . }}
-{{- else }}
-  name: {{ .Values.service.name }}
-{{- end }}
+  name: {{ template "greenname" . }}
   labels:
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   annotations:
@@ -26,5 +23,6 @@ spec:
 {{- end }}
 {{- end }}
   selector:
-    app: {{ template "fullname" . }}
+    app: {{ template "greenname" . }}
 {{- end }}
+{{- end -}}
