@@ -15,7 +15,11 @@ spec:
 {{ toYaml .Values.podLabels | indent 8 }}
 {{- end }}
         draft: {{ default "draft-app" .Values.draft }}
+        {{- if and .Values.blueGreenDeploy.enabled .Values.blueGreenDeploy.green.enabled }}
+        app: {{ template "greenname" . }}
+        {{- else }}
         app: {{ template "fullname" . }}
+        {{- end }}
 {{- if .Values.podAnnotations }}
       annotations:
 {{ toYaml .Values.podAnnotations | indent 8 }}
