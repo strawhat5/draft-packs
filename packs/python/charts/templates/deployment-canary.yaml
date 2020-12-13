@@ -1,0 +1,94 @@
+{{- if .Values.canaryDeploy.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "canaryname" . }}
+  labels:
+    draft: {{ default "draft-app" .Values.draft }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.canaryDeploy.replicaCount }}
+  template:
+    metadata:
+      labels:
+{{- if .Values.podLabels }}
+{{ toYaml .Values.podLabels | indent 8 }}
+{{- end }}
+        draft: {{ default "draft-app" .Values.draft }}
+        {{- if and .Values.blueGreenDeploy.enabled .Values.blueGreenDeploy.green.enabled }}
+        app: {{ template "greenname" . }}
+        {{- else }}
+        app: {{ template "fullname" . }}
+        {{- end }}
+{{- if .Values.podAnnotations }}
+      annotations:
+{{ toYaml .Values.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+{{- if .Values.canaryDeploy.init }}
+      initContainers:
+      - name: {{ .Chart.Name }}-init
+        image: "{{ .Values.canaryDeploy.init.image.repository }}:{{ .Values.canaryDeploy.init.image.tag }}"
+        imagePullPolicy: {{ .Values.canaryDeploy.init.image.pullPolicy }}
+{{- if .Values.canaryDeploy.init.run }}
+{{ toYaml .Values.canaryDeploy.init.run | indent 8 -}}
+{{- end }}
+{{- if .Values.env.enabled }}
+        env:
+{{ toYaml .Values.env.values | indent 8 -}}
+{{- end }}
+        {{- if .Values.config.enabled }}
+        volumeMounts:
+        - mountPath: {{ .Values.config.mountPath }}
+          name: {{ template "fullname" . }}
+        {{- end }}
+{{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.canaryDeploy.image.repository }}:{{ .Values.canaryDeploy.image.tag }}"
+        imagePullPolicy: {{ .Values.canaryDeploy.image.pullPolicy }}
+{{- if .Values.canaryDeploy.run }}
+{{ toYaml .Values.canaryDeploy.run | indent 8 -}}
+{{- else if .Values.run }}
+{{ toYaml .Values.run | indent 8 -}}
+{{- end }}
+{{- if .Values.env.enabled }}
+        env:
+{{ toYaml .Values.env.values | indent 8 -}}
+{{- end }}
+{{- if .Values.service.ports }}
+        ports:
+{{- range $ind , $port := .Values.service.ports }}
+        - containerPort: {{ $port.targetPort }}
+{{- end }}
+{{- end }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.probePath }}
+            port: {{ .Values.probePort }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.probePath }}
+            port: {{ .Values.probePort }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+        {{- if .Values.config.enabled }}
+        volumeMounts:
+        - mountPath: {{ .Values.config.mountPath }}
+          name: {{ template "fullname" . }}
+        {{- end }}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{ if .Values.config.enabled -}}
+      volumes:
+      - name: {{ template "fullname" . }}
+        configMap:
+          name: {{ template "fullname" . }}
+      {{- end }}
+{{- end -}}

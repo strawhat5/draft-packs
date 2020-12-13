@@ -15,9 +15,62 @@ service:
     targetPort: 8080
     name: http
     protocol: TCP
-  annotations:
-    fabric8.io/expose: "true"
-    fabric8.io/ingress.annotations: "kubernetes.io/ingress.class: nginx"
+    gateway:
+      enabled: false
+      routes:
+        api: {}
+  annotations: {}
+# Leaving commented for documentation.
+#    fabric8.io/expose: "false"
+#    fabric8.io/ingress.annotations: "kubernetes.io/ingress.class: nginx"
+
+blueGreenDeploy:
+  enabled: false
+  green:
+    enabled: false
+    image:
+    # Previous stable version, or current stable version. Will alternate with blue.
+      repository: draft-green
+      tag: dev
+      pullPolicy: IfNotPresent
+    run:
+      command: ["java"]
+      args: ["-jar", "./app.jar"]
+# Leaving commented for dexterity.
+#    init:
+#      image:
+#      # Next canary release version, to be incrementally enabled for users.
+#        repository: draft-green-init
+#        tag: dev
+#        pullPolicy: IfNotPresent
+#      run:
+#        command: ["java"]
+#        args: ["-jar", "./app-init.jar"]
+  blue:
+    #enabled: true
+    # Green flag controls deployment switching, so this 'enabled' flag is not required.
+    image:
+    # Current stable version, or previous stable version. Will alternate with green.
+      repository: draft-blue
+      tag: dev
+      pullPolicy: IfNotPresent
+    run:
+      command: ["java"]
+      args: ["-jar", "./app.jar"]
+
+canaryDeploy:
+  enabled: false
+  replicaCount: 0
+  # This replica count will determine the percentage of traffic routed to canary pods.
+  image:
+  # Next canary release version, to be incrementally enabled for users.
+    repository: draft-canary
+    tag: dev
+    pullPolicy: IfNotPresent
+  run:
+    command: ["java"]
+    args: ["-jar", "./app.jar"]
+
 resources:
   limits:
     cpu: 500m
@@ -40,6 +93,31 @@ terminationGracePeriodSeconds: 10
 
 ingress:
   enabled: false
+  exposedPort: 80 #Generally same as external service port.
+  live:
+  # Live host which will be available to users.
+  # If blue deployment is enabled, live host will route to blue pods.
+  # In production environment, please add the host entry in AWS Route 53.
+    hosts:
+      - host: REPLACE_ME_APP_NAME.example.com
+        paths: ["/"]
+    tls:
+    # To enable HTTPS, please use TLS certificates, available in each env.
+      - secretName: cert-tls
+        hosts:
+          - REPLACE_ME_APP_NAME.example.com
+  smoke:
+  # Test host available for smoke testing.
+  # If blue deployment is enabled, smoke host will route to green pods.
+  # In production environment, please add the host entry in AWS Route 53.
+    hosts:
+      - host: REPLACE_ME_APP_NAME.smoke.example.com
+        paths: ["/"]
+    tls:
+    # To enable HTTPS, please use TLS certificates, available in each env.
+      - secretName: cert-tls
+        hosts:
+          - REPLACE_ME_APP_NAME.smoke.example.com
 
 env:
   enabled: false

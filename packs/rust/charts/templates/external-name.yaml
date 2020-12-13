@@ -1,0 +1,13 @@
+{{- if .Values.blueGreenDeploy.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}
+spec:
+  type: ExternalName
+  {{- if .Values.blueGreenDeploy.green.enabled }}
+  externalName: {{ template "greenname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  {{- else }}
+  externalName: {{ template "bluename" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  {{- end }}
+{{- end }}

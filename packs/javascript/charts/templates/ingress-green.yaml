@@ -1,0 +1,62 @@
+{{- if and .Values.ingress.enabled .Values.blueGreenDeploy.enabled -}}
+{{- $greenName := include "greenname" . -}}
+{{- $svcPort := .Values.ingress.exposedPort -}}
+{{- $liveTls := .Values.ingress.live.tls -}}
+{{- $smokeTls := .Values.ingress.smoke.tls -}}
+{{- $liveHosts := .Values.ingress.live.hosts -}}
+{{- $smokeHosts := .Values.ingress.smoke.hosts -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "greenname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+{{- if .Values.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+{{- end }}
+spec:
+{{- if .Values.blueGreenDeploy.green.enabled }}
+  tls:
+  {{- range $liveTls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+  rules:
+  {{- range $liveHosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $greenName }}
+              servicePort: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+{{- else }}
+  tls:
+  {{- range $smokeTls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+  rules:
+  {{- range $smokeHosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $greenName }}
+              servicePort: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+{{- end }}
+{{- end -}}

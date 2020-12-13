@@ -1,17 +1,85 @@
 {{- if .Values.ingress.enabled -}}
+{{- $blueName := include "bluename" . -}}
+{{- $svcName := .Values.service.name -}}
+{{- $svcPort := .Values.ingress.exposedPort -}}
+{{- $liveTls := .Values.ingress.live.tls -}}
+{{- $smokeTls := .Values.ingress.smoke.tls -}}
+{{- $liveHosts := .Values.ingress.live.hosts -}}
+{{- $smokeHosts := .Values.ingress.smoke.hosts -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ template "fullname" . }}
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+{{- if .Values.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.ingress.annotations | indent 4 }}
+{{- end }}
 spec:
+{{- $greenEnabled := .Values.blueGreenDeploy.green.enabled -}}
+{{- if not .Values.blueGreenDeploy.enabled }}
+  tls:
+  {{- range $liveTls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
   rules:
-  - host: {{ .Release.Name }}.{{ .Values.basedomain }}
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: {{ template "fullname" . }}
-          servicePort: {{ .Values.service.externalPort }}
+  {{- range $liveHosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $svcName }}
+              servicePort: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+{{- else if $greenEnabled }}
+  tls:
+  {{- range $smokeTls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+  rules:
+  {{- range $smokeHosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $blueName }}
+              servicePort: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+{{- else }}
+  tls:
+  {{- range $liveTls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+  rules:
+  {{- range $liveHosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $blueName }}
+              servicePort: {{ $svcPort }}
+        {{- end }}
+  {{- end }}
+{{- end }}
 {{- end -}}
